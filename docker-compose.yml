@@ -1,0 +1,56 @@
+services:
+
+  mysql:
+    image: mysql:8.0
+    container_name: fitness-booking-mysql
+    restart: unless-stopped
+
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: fitness_booking_db
+
+    ports:
+      - "3308:3306"
+
+    volumes:
+      - fitness_mysql_data:/var/lib/mysql
+
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${DB_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+
+  backend:
+    image: fitness-booking-backend:latest
+    container_name: fitness-booking-backend
+    restart: unless-stopped
+
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+    environment:
+      DB_PASSWORD: ${DB_PASSWORD}
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/fitness_booking_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+
+    ports:
+      - "8089:8088"
+
+
+  frontend:
+    image: fitness-booking-frontend:latest
+    container_name: fitness-booking-frontend
+    restart: unless-stopped
+
+    depends_on:
+      - backend
+
+    ports:
+      - "5174:80"
+
+
+volumes:
+  fitness_mysql_data:
