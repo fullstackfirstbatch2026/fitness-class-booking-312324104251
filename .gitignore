@@ -1,0 +1,18 @@
+# IntelliJ
+.idea/
+*.iml
+
+# Java / Maven
+**/target/
+**/.mvn/timing.properties
+
+# Node
+**/node_modules/
+**/dist/
+
+# Environment files
+.env
+.env.*
+
+# Logs
+*.log
